@@ -1,6 +1,6 @@
 FROM php:7-apache
 
-MAINTAINER maintenance@le-filament.com
+MAINTAINER services@linuxconsole.org
 
 RUN apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq zip unzip git zlib1g-dev libicu-dev g++ mariadb-client git
 RUN docker-php-ext-install intl && docker-php-ext-install pdo_mysql
@@ -30,6 +30,7 @@ RUN cd /var/www/framadate && git checkout v1.2.0-alpha.1
 RUN cp /tmp/recursive.tpl /var/www/framadate/tpl/part/create_poll/recursive.tpl
 RUN cd /var/www/framadate && patch -p1 < /tmp/recursive.diff
 RUN cp /tmp/Version20240518170000.php /var/www/framadate/app/classes/Framadate/Migrations/Version20240518170000.php
+RUN cp cron.php /var/www/framadate
 
 WORKDIR /var/www/framadate
 
