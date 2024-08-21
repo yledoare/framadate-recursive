@@ -1,5 +1,5 @@
 <?php
-include("app/inc/config.php");
+include("/var/www/framadate/app/inc/config.php");
 
 $polls=array();
 $needshift=FALSE;
@@ -19,7 +19,8 @@ $sql_old_slot="select id, title from fd_slot where title < (UNIX_TIMESTAMP() - 8
 $PollResult = $pdo->query($sql_recursive_poll);
 foreach ($PollResult as $poll) {
 	$polls[]=$poll['id'];
-	//echo $poll['id'] . PHP_EOL;
+	echo exec("date") . " - ";
+	echo $poll['id'] . PHP_EOL;
 }
 
 foreach ($polls as $poll) {
@@ -31,18 +32,19 @@ foreach ($polls as $poll) {
 		echo $slot['title'] . PHP_EOL;
 		$nextweek=604800 + $slot['title'];
 		$sql="update fd_slot set title=$nextweek where id=".$slot['id'];
-		echo $sql . PHP_EOL;
+		//echo $sql . PHP_EOL;
 		$stmt= $pdo->prepare($sql);
 		$stmt->execute([$id]);
 		$data = [
 		     'title'=> $nextweek,
      		     'id' => $slot['id']
 		];
-		print_r($data);
+
 		$sql = "UPDATE fd_slot SET title=:title WHERE id=:id";
 		$statement = $pdo->prepare($sql);
 		if($statement->execute($data)) {
-  			echo "Slot updated successfully!";
+			$count = $statement->rowCount();
+  			echo "$count Slot updated successfully!";
 		}
 		$needshift=TRUE;
 
@@ -55,7 +57,8 @@ if($needshift)
 	$sql="update fd_vote set choices=substring(choices,2,100) where poll_id=:poll_id";
 	$statement = $pdo->prepare($sql);
 	if($statement->execute($data)) {
-  			echo "Vote updated successfully!";
+		$count = $statement->rowCount();
+  			echo "$count Vote updated successfully!";
 	}
 
 	$sql="delete from fd_vote where choices = ''";
