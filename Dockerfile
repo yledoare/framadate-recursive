@@ -14,6 +14,7 @@ COPY apache-framadate.conf /etc/apache2/sites-enabled/framadate.conf
 COPY entrypoint.sh /usr/local/bin/entrypoint
 COPY recursive.diff /tmp
 COPY recursive.tpl /tmp
+COPY cron.php /tmp
 COPY Version20240518170000.php /tmp
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -30,7 +31,7 @@ RUN cd /var/www/framadate && git checkout v1.2.0-alpha.1
 RUN cp /tmp/recursive.tpl /var/www/framadate/tpl/part/create_poll/recursive.tpl
 RUN cd /var/www/framadate && patch -p1 < /tmp/recursive.diff
 RUN cp /tmp/Version20240518170000.php /var/www/framadate/app/classes/Framadate/Migrations/Version20240518170000.php
-RUN cp cron.php /var/www/framadate
+RUN cp /tmp/cron.php /var/www/framadate
 
 WORKDIR /var/www/framadate
 

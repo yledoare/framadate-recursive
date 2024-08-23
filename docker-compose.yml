@@ -23,14 +23,8 @@ services:
             MYSQL_USER: root
             MYSQL_PASSWORD: rootpassfordev
             MYSQL_DB: framadate
-            ADMIN_USER: framadate
-            ADMIN_PASSWORD: framadate
-            APP_NAME: Framadate
-            DOMAIN: framadate.bzh.org
-            ADMIN_MAIL: framadate@linuxconsole.org
-            MYSQL_USER: framadate
-            MYSQL_PASSWORD: framadatepasswd 
-            MYSQL_DB: framadate
+            DOMAIN: YOURDOMAINHERE
+            ADMIN_MAIL: framadate@adn-bzh.org
             MYSQL_HOST: mysql
             MYSQL_PORT: 3306
             ADMIN_USER: framadate
