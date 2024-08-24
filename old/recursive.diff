@@ -1,0 +1,200 @@
+diff --git a/app/classes/Framadate/Form.php b/app/classes/Framadate/Form.php
+index b35e925..23863e1 100644
+--- a/app/classes/Framadate/Form.php
++++ b/app/classes/Framadate/Form.php
+@@ -101,6 +101,12 @@ class Form
+      */
+     public $collect_users_mail;
+ 
++    /**
++     * If true, copy for the next week
++     * @var boolean
++     */
++    public $poll_is_recursive;
++
+     /**
+      * List of available choices
+      */
+diff --git a/app/classes/Framadate/Repositories/PollRepository.php b/app/classes/Framadate/Repositories/PollRepository.php
+index 78d0860..3a44522 100644
+--- a/app/classes/Framadate/Repositories/PollRepository.php
++++ b/app/classes/Framadate/Repositories/PollRepository.php
+@@ -29,6 +29,7 @@ class PollRepository extends AbstractRepository {
+             'format' => $form->format,
+             'editable' => ($form->editable>=0 && $form->editable<=2) ? $form->editable : 0,
+             'receiveNewVotes' => $form->receiveNewVotes ? 1 : 0,
++            'poll_is_recursive' => $form->poll_is_recursive ? 1 : 0,
+             'receiveNewComments' => $form->receiveNewComments ? 1 : 0,
+             'hidden' => $form->hidden ? 1 : 0,
+             'password_hash' => $form->password_hash,
+diff --git a/app/classes/Framadate/Services/PollService.php b/app/classes/Framadate/Services/PollService.php
+index ca9eb70..39eae34 100644
+--- a/app/classes/Framadate/Services/PollService.php
++++ b/app/classes/Framadate/Services/PollService.php
+@@ -190,7 +190,6 @@ class PollService {
+         // Min/Max archive date
+         $min_expiry_time = $this->minExpiryDate();
+         $max_expiry_time = $this->maxExpiryDate();
+-
+         if (!empty($end_date)) {
+             $registredate = explode('/', $end_date);
+ 
+@@ -211,7 +210,6 @@ class PollService {
+             // By default, expiration date is 6 months after last day
+             $form->end_date = $max_expiry_time;
+         }
+-
+         // Insert poll in database
+         list($poll_id, $admin_poll_id) = $this->createPoll($form);
+ 
+@@ -267,7 +265,7 @@ class PollService {
+ 
+             $this->logService->log(
+                 'CREATE_POLL',
+-                'id:' . $poll_id . ', title: ' . $form->title . ', format:' . $form->format . ', admin:' . $form->admin_name . ', mail:' . $form->admin_mail
++                'id:' . $poll_id . ', title: ' . $form->title . ', format:' . $form->format . ', admin:' . $form->admin_name . ', mail:' . $form->admin_mail . ',recursive:' . $form->poll_is_recursive
+             );
+ 
+             return [$poll_id, $admin_poll_id];
+diff --git a/app/inc/constants.php b/app/inc/constants.php
+index a0f0e02..0f053a4 100644
+--- a/app/inc/constants.php
++++ b/app/inc/constants.php
+@@ -18,7 +18,7 @@
+  */
+ 
+ // FRAMADATE version
+-const VERSION = '1.2.0-alpha.1';
++const VERSION = '1.2.0-alpha.1-recursive';
+ 
+ // PHP Needed version
+ const PHP_NEEDED_VERSION = '5.6';
+diff --git a/create_date_poll.php b/create_date_poll.php
+index cdd78a9..d0b4b2e 100644
+--- a/create_date_poll.php
++++ b/create_date_poll.php
+@@ -94,7 +94,6 @@ switch ($step) {
+ 
+     case 3:
+         // Step 3/4 : Confirm poll creation
+-
+         // Handle Step2 submission
+         if (!empty($_POST['days'])) {
+             // Remove empty dates
+@@ -146,7 +145,8 @@ switch ($step) {
+             }
+             $form->sortChoices();
+         }
+-
++//print_r($form);
++//die("OK");
+         // Display step 3
+         $summary = '<ul>';
+         $choices = $form->getChoices();
+diff --git a/create_poll.php b/create_poll.php
+index fb6b4bc..65fdc2c 100644
+--- a/create_poll.php
++++ b/create_poll.php
+@@ -57,6 +57,11 @@ if ($goToStep2) {
+     $use_ValueMax = isset($_POST['use_ValueMax']) ? $inputService->filterBoolean($_POST['use_ValueMax']) : false;
+     $ValueMax = $use_ValueMax === true ? $inputService->filterValueMax($_POST['ValueMax']) : null;
+ 
++    //$poll_is_recursive = isset($_POST['use_ValueRecursive']) ? $poll_is_recursive->filterBoolean($_POST['use_ValueRecursive']) : false;
++    if(isset($_POST['use_ValueRecursive']))
++	    $poll_is_recursive = true;
++    else
++	    $poll_is_recursive = false;
+     $use_customized_url = isset($_POST['use_customized_url']) ? $inputService->filterBoolean($_POST['use_customized_url']) : false;
+     $customized_url = $use_customized_url === true ? $inputService->filterId($_POST['customized_url']) : null;
+     $name = $inputService->filterName($_POST['name']);
+@@ -90,6 +95,7 @@ if ($goToStep2) {
+     $form->ValueMax = $ValueMax;
+     $form->admin_name = $name;
+     $form->admin_mail = $mail;
++    $form->poll_is_recursive = $poll_is_recursive;
+     $form->description = $description;
+     $form->editable = $editable;
+     $form->receiveNewVotes = $receiveNewVotes;
+@@ -295,6 +301,7 @@ $smarty->assign('poll_type', $poll_type);
+ $smarty->assign('poll_title', Utils::fromPostOrDefault('title', $form->title));
+ $smarty->assign('customized_url', Utils::fromPostOrDefault('customized_url', $form->id));
+ $smarty->assign('use_customized_url', Utils::fromPostOrDefault('use_customized_url', $form->use_customized_url));
++$smarty->assign('use_ValueRecursive', Utils::fromPostOrDefault('poll_is_recursive', $form->poll_is_recursive));
+ $smarty->assign('ValueMax', Utils::fromPostOrDefault('ValueMax', $form->ValueMax));
+ $smarty->assign('use_ValueMax', Utils::fromPostOrDefault('use_ValueMax', $form->use_ValueMax));
+ $smarty->assign('collect_users_mail', Utils::fromPostOrDefault('collect_users_mail', $form->collect_users_mail));
+diff --git a/po/fr.po b/po/fr.po
+index f9a98d9..010b8f8 100755
+--- a/po/fr.po
++++ b/po/fr.po
+@@ -18,6 +18,12 @@ msgstr ""
+ "Language: fr\n"
+ "Plural-Forms: nplurals=2; plural=(n > 1)\n"
+ 
++msgid "Recursive poll"
++msgstr "Sondage récursif"
++
++msgid "Recursive"
++msgstr "Récursivié"
++
+ #: .1st+section.Create+a+poll
+ msgid "Create a poll"
+ msgstr "Créez un sondage"
+diff --git a/tpl/admin/config.tpl b/tpl/admin/config.tpl
+index af6500a..4d50261 100644
+--- a/tpl/admin/config.tpl
++++ b/tpl/admin/config.tpl
+@@ -116,9 +116,9 @@ $config = [
+         'port' => 25,                       // TCP port to connect to
+     ],
+     /* home */
+-    'show_what_is_that' => true,            // display "how to use" section
+-    'show_the_software' => true,            // display technical information about the software
+-    'show_cultivate_your_garden' => true,   // display "development and administration" information
++    'show_what_is_that' => false,            // display "how to use" section
++    'show_the_software' => false,            // display technical information about the software
++    'show_cultivate_your_garden' => false,   // display "development and administration" information
+     /* create_classic_poll.php / create_date_poll.php */
+     'default_poll_duration' => 180,         // default values for the new poll duration (number of days).
+     /* create_classic_poll.php */
+diff --git a/tpl/index.tpl b/tpl/index.tpl
+index d8f46ab..1ae2811 100644
+--- a/tpl/index.tpl
++++ b/tpl/index.tpl
+@@ -15,18 +15,6 @@
+             </p>
+         </div>
+         <div class="col-xs-12 col-md-6 text-center">
+-            <p class="home-choice">
+-                <a href="{$SERVER_URL}create_poll.php?type=autre" class="opacity" role="button">
+-                    <img alt="" class="img-responsive center-block" src="{'images/classic.png'|resource}"/>
+-                    <br/>
+-                    <span class="btn btn-info btn-lg">
+-                        <span class="glyphicon glyphicon-stats"></span>
+-                        {__('Homepage', 'Make a standard poll')}
+-                    </span>
+-                </a>
+-            </p>
+-        </div>
+-        <div class="col-xs-12 col-md-6 col-md-offset-3 text-center">
+             <p class="home-choice">
+                 <a href="{$SERVER_URL}find_polls.php" class="opacity" role="button">
+                     <span class="btn btn-warning btn-lg">
+diff --git a/tpl/part/create_poll_collapsed.tpl b/tpl/part/create_poll_collapsed.tpl
+index ebad06c..fbc3a11 100644
+--- a/tpl/part/create_poll_collapsed.tpl
++++ b/tpl/part/create_poll_collapsed.tpl
+@@ -8,11 +8,12 @@
+ 
+     {include 'part/create_poll/permissions.tpl'}
+ 
+-
+     {if $use_smtp}
+         {include 'part/create_poll/receive_notifications.tpl'}
+     {/if}
+ 
+     {include 'part/create_poll/email_collection.tpl'}
+ 
++    {include 'part/create_poll/recursive.tpl'}
++
+ </div> {* END div.collapse *}
