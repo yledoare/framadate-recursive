@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Allow: /index.php
+Allow: /create_poll.php
+Disallow: /*
