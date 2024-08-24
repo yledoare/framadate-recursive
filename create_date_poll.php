@@ -94,7 +94,6 @@ switch ($step) {
 
     case 3:
         // Step 3/4 : Confirm poll creation
-
         // Handle Step2 submission
         if (!empty($_POST['days'])) {
             // Remove empty dates
@@ -146,7 +145,8 @@ switch ($step) {
             }
             $form->sortChoices();
         }
-
+//print_r($form);
+//die("OK");
         // Display step 3
         $summary = '<ul>';
         $choices = $form->getChoices();

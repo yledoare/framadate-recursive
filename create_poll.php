@@ -57,6 +57,11 @@ if ($goToStep2) {
     $use_ValueMax = isset($_POST['use_ValueMax']) ? $inputService->filterBoolean($_POST['use_ValueMax']) : false;
     $ValueMax = $use_ValueMax === true ? $inputService->filterValueMax($_POST['ValueMax']) : null;
 
+    //$poll_is_recursive = isset($_POST['use_ValueRecursive']) ? $poll_is_recursive->filterBoolean($_POST['use_ValueRecursive']) : false;
+    if(isset($_POST['use_ValueRecursive']))
+	    $poll_is_recursive = true;
+    else
+	    $poll_is_recursive = false;
     $use_customized_url = isset($_POST['use_customized_url']) ? $inputService->filterBoolean($_POST['use_customized_url']) : false;
     $customized_url = $use_customized_url === true ? $inputService->filterId($_POST['customized_url']) : null;
     $name = $inputService->filterName($_POST['name']);
@@ -90,6 +95,7 @@ if ($goToStep2) {
     $form->ValueMax = $ValueMax;
     $form->admin_name = $name;
     $form->admin_mail = $mail;
+    $form->poll_is_recursive = $poll_is_recursive;
     $form->description = $description;
     $form->editable = $editable;
     $form->receiveNewVotes = $receiveNewVotes;
@@ -295,6 +301,7 @@ $smarty->assign('poll_type', $poll_type);
 $smarty->assign('poll_title', Utils::fromPostOrDefault('title', $form->title));
 $smarty->assign('customized_url', Utils::fromPostOrDefault('customized_url', $form->id));
 $smarty->assign('use_customized_url', Utils::fromPostOrDefault('use_customized_url', $form->use_customized_url));
+$smarty->assign('use_ValueRecursive', Utils::fromPostOrDefault('poll_is_recursive', $form->poll_is_recursive));
 $smarty->assign('ValueMax', Utils::fromPostOrDefault('ValueMax', $form->ValueMax));
 $smarty->assign('use_ValueMax', Utils::fromPostOrDefault('use_ValueMax', $form->use_ValueMax));
 $smarty->assign('collect_users_mail', Utils::fromPostOrDefault('collect_users_mail', $form->collect_users_mail));

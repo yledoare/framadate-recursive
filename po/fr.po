@@ -18,6 +18,12 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
+msgid "Recursive poll"
+msgstr "Sondage récursif"
+
+msgid "Recursive"
+msgstr "Récursivié"
+
 #: .1st+section.Create+a+poll
 msgid "Create a poll"
 msgstr "Créez un sondage"

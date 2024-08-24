@@ -190,7 +190,6 @@ class PollService {
         // Min/Max archive date
         $min_expiry_time = $this->minExpiryDate();
         $max_expiry_time = $this->maxExpiryDate();
-
         if (!empty($end_date)) {
             $registredate = explode('/', $end_date);
 
@@ -211,7 +210,6 @@ class PollService {
             // By default, expiration date is 6 months after last day
             $form->end_date = $max_expiry_time;
         }
-
         // Insert poll in database
         list($poll_id, $admin_poll_id) = $this->createPoll($form);
 
@@ -267,7 +265,7 @@ class PollService {
 
             $this->logService->log(
                 'CREATE_POLL',
-                'id:' . $poll_id . ', title: ' . $form->title . ', format:' . $form->format . ', admin:' . $form->admin_name . ', mail:' . $form->admin_mail
+                'id:' . $poll_id . ', title: ' . $form->title . ', format:' . $form->format . ', admin:' . $form->admin_name . ', mail:' . $form->admin_mail . ',recursive:' . $form->poll_is_recursive
             );
 
             return [$poll_id, $admin_poll_id];

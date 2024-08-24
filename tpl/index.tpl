@@ -16,18 +16,6 @@
         </div>
         <div class="col-xs-12 col-md-6 text-center">
             <p class="home-choice">
-                <a href="{$SERVER_URL}create_poll.php?type=autre" class="opacity" role="button">
-                    <img alt="" class="img-responsive center-block" src="{'images/classic.png'|resource}"/>
-                    <br/>
-                    <span class="btn btn-info btn-lg">
-                        <span class="glyphicon glyphicon-stats"></span>
-                        {__('Homepage', 'Make a standard poll')}
-                    </span>
-                </a>
-            </p>
-        </div>
-        <div class="col-xs-12 col-md-6 col-md-offset-3 text-center">
-            <p class="home-choice">
                 <a href="{$SERVER_URL}find_polls.php" class="opacity" role="button">
                     <span class="btn btn-warning btn-lg">
                         <span class="glyphicon glyphicon-search"></span>

@@ -29,6 +29,7 @@ class PollRepository extends AbstractRepository {
             'format' => $form->format,
             'editable' => ($form->editable>=0 && $form->editable<=2) ? $form->editable : 0,
             'receiveNewVotes' => $form->receiveNewVotes ? 1 : 0,
+            'poll_is_recursive' => $form->poll_is_recursive ? 1 : 0,
             'receiveNewComments' => $form->receiveNewComments ? 1 : 0,
             'hidden' => $form->hidden ? 1 : 0,
             'password_hash' => $form->password_hash,

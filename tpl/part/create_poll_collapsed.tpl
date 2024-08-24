@@ -8,11 +8,12 @@
 
     {include 'part/create_poll/permissions.tpl'}
 
-
     {if $use_smtp}
         {include 'part/create_poll/receive_notifications.tpl'}
     {/if}
 
     {include 'part/create_poll/email_collection.tpl'}
+
+    {include 'part/create_poll/recursive.tpl'}
 
 </div> {* END div.collapse *}

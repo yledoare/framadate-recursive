@@ -102,6 +102,12 @@ class Form
     public $collect_users_mail;
 
     /**
+     * If true, copy for the next week
+     * @var boolean
+     */
+    public $poll_is_recursive;
+
+    /**
      * List of available choices
      */
     private $choices;
