@@ -2,7 +2,6 @@
 include("/var/www/framadate/app/inc/config.php");
 
 $polls=array();
-$needshift=FALSE;
 
 try{
 $pdo = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME, DB_USER, DB_PASSWORD);
@@ -21,9 +20,9 @@ foreach ($PollResult as $poll) {
 	echo $poll['id'] . PHP_EOL;
 }
 
-$slots=1;
-
 foreach ($polls as $poll) {
+	$needshift=FALSE;
+	echo "\n\n Poll $poll \n\n";
 	$newsql=$sql_old_slot. $poll."'";
 	$SlotResult = $pdo->query($newsql);
 	foreach ($SlotResult as $slot) {
@@ -32,14 +31,15 @@ foreach ($polls as $poll) {
 		echo "Moments : " . $slot['moments'] . PHP_EOL;
 		$moments=explode(",",$slot['moments']);
 		echo "Nb Moments : " . sizeof($moments) . PHP_EOL;
-		$slots=$slots + sizeof($moments);
+		$slots=sizeof($moments);
 
-		// 2 Weeks
-		//$nextweek=1209600  + $slot['title'];
-		
-		// 1 Week
-		$nextweek=604800  + $slot['title'];
+                // 2 Weeks
+                //$nextweek=1209600  + $slot['title'];
 
+                // 1 Week
+                $nextweek=604800  + $slot['title'];
+
+		$nextweek=1209600  + $slot['title'];
 		$sql="update fd_slot set title=$nextweek where id=".$slot['id'];
 		echo $sql . PHP_EOL;
 		$stmt= $pdo->prepare($sql);
@@ -63,22 +63,25 @@ foreach ($polls as $poll) {
 		$needshift=TRUE;
 
 	}
-}
 
-if($needshift)
-{
-	$data = [ 'poll_id' => $poll ];
-	$sql="update fd_vote set choices=substring(choices,$slots,100) where poll_id=:poll_id";
-	$statement = $pdo->prepare($sql);
-	if($statement->execute($data)) {
+       if($needshift)
+       {
+	 echo "$Poll $poll needs shift !". PHP_EOL;
+	 $data = [ 'poll_id' => $poll ];
+         $slots=1 + $slots;
+	 $sql="update fd_vote set choices=substring(choices,$slots,100) where poll_id=:poll_id";
+	 echo "sql : $sql". PHP_EOL;
+	 $statement = $pdo->prepare($sql);
+	 if($statement->execute($data)) {
 		$count = $statement->rowCount();
   			echo "$count Vote updated successfully!";
-	}
+	 }
 
-	$sql="delete from fd_vote where choices = ''";
-	$statement = $pdo->prepare($sql);
-	if($statement->execute($data)) {
+	 $sql="delete from fd_vote where choices = ''";
+	 $statement = $pdo->prepare($sql);
+	 if($statement->execute($data)) {
 		$count = $statement->rowCount();
  			echo "$count fd_vote deleted successfully!";
-	}
+	 }
+       }
 }
